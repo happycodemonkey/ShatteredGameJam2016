@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 #include "Shrimp.h"
 
 const float FPS = 60;
@@ -64,6 +66,15 @@ int main(int argc, char **argv) {
         fprintf(stderr, "failed to initialize allegro\n");
         return -1;
     }
+    
+    al_init_font_addon();
+    al_init_ttf_addon();
+    
+    ALLEGRO_FONT *font = al_load_ttf_font("28 Days Later.ttf", 72,0);
+    if(!font) {
+        fprintf(stderr, "Issue loading font\n");
+        return -1;
+    }
 
     if(!al_install_keyboard()) {
         fprintf(stderr, "failed to initialize the keyboard\n");
@@ -86,7 +97,6 @@ int main(int argc, char **argv) {
         al_destroy_timer(timer);
         return -1;
     }
-
 
     ball = al_create_bitmap(BOUNCER_SIZE, BOUNCER_SIZE);
     if(!ball) {
@@ -160,10 +170,16 @@ int main(int argc, char **argv) {
             bouncer_x += bouncer_dx;
             bouncer_y += bouncer_dy;
 
-
             if (collision(shrimp.getX(), shrimp.getY(), shrimp.getSize() / 2, shrimp.getSize() / 2,
                         bouncer_x, bouncer_y, BOUNCER_SIZE, BOUNCER_SIZE)) {
-                fprintf(stderr, "You got hit!!");
+                al_clear_to_color(al_map_rgb(50,10,70));
+                al_draw_text(font, al_map_rgb(255,255,255), 
+                        SCREEN_W/2, (SCREEN_H/4), ALLEGRO_ALIGN_CENTER, "YOU DIED");
+                al_draw_text(font, al_map_rgb(255,255,255),
+                        (SCREEN_W/2) + 10, (SCREEN_H/2), ALLEGRO_ALIGN_LEFT, "RETRY");
+                al_draw_text(font, al_map_rgb(255,255,255),
+                        (SCREEN_W/2) - 10, (SCREEN_H/2), ALLEGRO_ALIGN_RIGHT, "QUIT");
+                al_flip_display();
             }
 
             redraw = true;
